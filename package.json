@@ -1,0 +1,53 @@
+{
+  "name": "jev-memory",
+  "version": "0.1.0",
+  "description": "Agent long-term-memory layer for the Vercel AI SDK, backed by the typesafe-ai/jev evaluation model. Write/retrieve/evict gates are all selection decisions -- memories are stored, retrieved and evicted verbatim, never summarized or rewritten.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "memory",
+    "long-term-memory",
+    "vercel-ai-sdk",
+    "jev",
+    "ai-gateway"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "ai": "^7.0.105"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "ai": "^7.0.105",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": ">=18.17"
+  }
+}
