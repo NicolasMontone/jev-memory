@@ -96,3 +96,31 @@ describe('selectWithinBudget', () => {
     expect(result.droppedForBudget.map((d) => d.memory.id)).toEqual(['item2']);
   });
 });
+
+describe('budget overflow is surfaced, not silent', () => {
+  it('flags overBudget when pinned memories alone exceed the budget', () => {
+    const big = 'x'.repeat(4000); // ~1000 tokens with the default estimator
+    const sel = selectWithinBudget(
+      [
+        { memory: makeMemory('p1', big), score: 1, pinned: true },
+        { memory: makeMemory('p2', big), score: 1, pinned: true },
+        { memory: makeMemory('u1', 'small'), score: 1, pinned: false },
+      ],
+      100,
+      estimateTokens,
+    );
+    expect(sel.overBudget).toBe(true);
+    expect(sel.selected.map((m) => m.id).sort()).toEqual(['p1', 'p2']);
+    expect(sel.totalTokens).toBeGreaterThan(100);
+  });
+
+  it('does not flag overBudget when everything fits', () => {
+    const sel = selectWithinBudget(
+      [{ memory: makeMemory('a', 'tiny'), score: 1, pinned: false }],
+      100,
+      estimateTokens,
+    );
+    expect(sel.overBudget).toBe(false);
+    expect(sel.totalTokens).toBeLessThanOrEqual(100);
+  });
+});

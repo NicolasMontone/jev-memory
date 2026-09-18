@@ -14,6 +14,15 @@ export interface BudgetSelection {
   selected: Memory[];
   droppedForBudget: ScoredDrop[];
   tokens: Record<string, number>;
+  /**
+   * True when pinned memories alone exceeded `tokenBudget`. Pinned memories are
+   * always returned, so the selection is over budget and the caller must decide
+   * what to do. Without this flag the overflow is silent and the caller ships a
+   * prompt larger than the budget it asked for.
+   */
+  overBudget: boolean;
+  /** Total estimated tokens of `selected`. */
+  totalTokens: number;
 }
 
 /**
@@ -48,7 +57,8 @@ export function selectWithinBudget(
     remaining -= tokens[c.memory.id] as number;
   }
   // Pinned overflow doesn't take away from itself; it just leaves nothing
-  // for the ranked pass below.
+  // for the ranked pass below. Surfaced as `overBudget` so it isn't silent.
+  const overBudget = remaining < 0;
   remaining = Math.max(0, remaining);
 
   const ranked = unpinned
@@ -74,5 +84,7 @@ export function selectWithinBudget(
     }
   }
 
-  return { selected, droppedForBudget, tokens };
+  const totalTokens = selected.reduce((sum, m) => sum + (tokens[m.id] as number), 0);
+
+  return { selected, droppedForBudget, tokens, overBudget, totalTokens };
 }
